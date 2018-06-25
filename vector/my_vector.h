@@ -21,9 +21,9 @@ public:
     typedef typename std::allocator<T>::pointer pointer;
     typedef typename std::allocator<T>::reference reference;
 private:
-    T *elements = nullptr;
+    pointer elements = nullptr;
     size_type num_elem = 0, space = 16;
-    std::allocator<T> memory_manager;
+    allocator_type memory_manager;
 public:
     My_Vector() : elements{memory_manager.allocate(16)} {}
 
@@ -304,7 +304,7 @@ public:
         num_elem = count;
     }
 
-    void resize(size_type count, const T &value) {
+    void resize(size_type count, const reference value) {
         reserve(count);
         pointer ptr;
         if (num_elem > count) {

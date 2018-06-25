@@ -6,6 +6,7 @@
 
 void test_My_Vector_class() {
 
+    My_Vector<My_Vector<double> > list_zero;
     My_Vector<double> list;
     auto list_two(list);
     auto list_three = list_two;
@@ -54,5 +55,16 @@ void test_My_Vector_class() {
     std::cout << "\nList Two element after std::sort().\n";
     std::for_each(list_two.begin(), list_two.end(), [](double &val) { std::cout << val << ' '; });
 
+    list.push_back(234.2345);
+    list_four.push_back(22.2222);
+    list_three.push_back(32.233234);
+
+    list_zero.push_back(list);
+    list_zero.push_back(list_two);
+    list_zero.push_back(list_three);
+    list_zero.push_back(list_four);
+
+    std::cout << "\nNested vector of vectors of double;\n";
+    std::for_each(list_zero.begin(), list_zero.end(), [](const My_Vector<double>& cont) {std::for_each(cont.begin(), cont.end(), [](double &val) { std::cout << val << ' ';});});
 
 }

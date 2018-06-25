@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/maist/Documents/CS/C++/cpp_course/vector/main.cpp
+my_vector.h
+C:/Users/maist/Documents/CS/C++/cpp_course/vector/my_vector.h
+
+C:/Users/maist/Documents/CS/C++/cpp_course/vector/my_vector.cpp
+my_vector.h
+C:/Users/maist/Documents/CS/C++/cpp_course/vector/my_vector.h
+
+C:/Users/maist/Documents/CS/C++/cpp_course/vector/my_vector.h
+memory
+-
+initializer_list
+-
+algorithm
+-
+iterator
+-
+stdexcept
+-
+iostream
+-
+
