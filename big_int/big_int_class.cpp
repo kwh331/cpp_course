@@ -4,8 +4,7 @@
 
 #include "big_int_class.h"
 #include <cmath>
-
-using std::cout;
+#include <stdexcept>
 
 bigint::bigint(const std::string &var) {
     auto end = var.rend();
@@ -15,7 +14,7 @@ bigint::bigint(const std::string &var) {
     }
     for (auto i = var.rbegin(); i != end; ++i) {
         if (*i == ',' || *i == '.') digits.clear();
-        else digits.push_back(*i);
+        else digits.push_back(static_cast<unsigned char>(*i));
     }
 
 }
@@ -53,15 +52,15 @@ bigint bigint::operator+(const bigint &other) const {
             add_result = carry + small[i] + big[i] - 2 * 48;
             carry = add_result / 10;
             add_result %= 10;
-            ret_val.push_back(add_result + 48);
+            ret_val.push_back(static_cast<unsigned char>(add_result + 48));
         }
         for (auto i = small.size(); i < big.size(); ++i) {
             add_result = carry + big[i] - 48;
             carry = add_result / 10;
             add_result %= 10;
-            ret_val.push_back(add_result + 48);
+            ret_val.push_back(static_cast<unsigned char>(add_result + 48));
         }
-        if (carry) ret_val.push_back(carry + 48);
+        if (carry) ret_val.push_back(static_cast<unsigned char>(carry + 48));
         if (negative) ret_val.push_back('-');
         return bigint(std::string(ret_val.rbegin(), ret_val.rend()));
     }
@@ -82,32 +81,61 @@ bigint bigint::operator+=(const bigint &other) {
             add_result = carry + small[i] + big[i] - 2 * 48;
             carry = add_result / 10;
             add_result %= 10;
-            ret_val.push_back(add_result + 48);
+            ret_val.push_back(static_cast<unsigned char>(add_result + 48));
         }
         for (auto i = small.size(); i < big.size(); ++i) {
             add_result = carry + big[i] - 48;
             carry = add_result / 10;
             add_result %= 10;
-            ret_val.push_back(add_result + 48);
+            ret_val.push_back(static_cast<unsigned char>(add_result + 48));
         }
-        if (carry) ret_val.push_back(carry + 48);
-        if (negative) ret_val.push_back('-');
+        if (carry) ret_val.push_back(static_cast<unsigned char>(carry + 48));
         digits = ret_val;
-        return *this;
+    } else {
+        auto left = *this, right = other;
+        left.negative = false;
+        right.negative = false;
+        if (negative) {
+            digits = (right - left).digits;
+        } else {
+            auto result = left - right;
+            digits = result.digits;
+        }
     }
-    auto left = *this, right = other;
-    left.negative = false;
-    right.negative = false;
-    if (negative) return right - left;
-    auto result = left - right;
-    digits = result.digits;
+    return *this;
+}
+
+bigint bigint::operator++() {
+    int add_value = digits[0] - 48;
+    if (negative) --add_value;
+    else ++add_value;
+    if (add_value >= 10) {
+        int carry = 1;
+        digits[0] = static_cast<unsigned char>((add_value % 10) + 48);
+        for (auto i = 1; (i < digits.size() && carry != 0); ++i) {
+            add_value = carry + digits[i] - 48;
+            carry = add_value / 10;
+            digits[i] = static_cast<unsigned char>((add_value % 10) + 48);
+        }
+        if (carry) digits.push_back(static_cast<unsigned char>(carry + 48));
+    } else if (add_value < 0) {
+        int carry = 1;
+        digits[0] = static_cast<unsigned char>(10 + add_value + 48);
+        for (auto i = 1; i < digits.size() && carry != 0; ++i) {
+            add_value = digits[i] - carry - 48;
+            if (add_value < 0) {
+                carry = 1;
+                add_value += 10;
+            } else carry = 0;
+            digits[i] = static_cast<unsigned char>(add_value + 48);
+        }
+    } else digits[0] = static_cast<unsigned char>(add_value + 48);
     return *this;
 }
 
 bigint bigint::operator-(const bigint &other) const {
-    if (negative == other.negative) {
-        const auto &small = *this < other && negative ||
-                            *this > other && !negative ? other.digits : digits;
+    if (!(negative || other.negative)) {
+        const auto &small = *this < other ? digits : other.digits;
         const auto &big = digits == small ? other.digits : digits;
         std::string ret_val;
         auto sub_result = 0, carry = 0;
@@ -115,29 +143,32 @@ bigint bigint::operator-(const bigint &other) const {
             sub_result = big[i] - small[i] - carry;
             if (sub_result < 0) {
                 carry = 1;
-                sub_result = 10 + sub_result;
+                sub_result += 10;
             } else carry = 0;
-            ret_val.push_back(sub_result + 48);
+            ret_val.push_back(static_cast<unsigned char>(sub_result + 48));
         }
         for (auto i = small.size(); i < big.size(); ++i) {
-            sub_result = big[i] - carry;
+            sub_result = big[i] - carry - 48;
             if (sub_result < 0) {
                 carry = 1;
-                sub_result = 10 - sub_result;
+                sub_result += 10;
             } else carry = 0;
-            ret_val.push_back(sub_result);
+            ret_val.push_back(static_cast<unsigned char>(sub_result + 48));
         }
-        while (ret_val[ret_val.size() - 1] == '0' && ret_val.size() >= 2) ret_val.pop_back();
-        if ((big != digits || big == digits && negative) && ret_val != "0") ret_val.push_back('-');
-
+        while (ret_val[ret_val.size() - 1] == '0' && ret_val.size() > 1) ret_val.pop_back();
+        if ((big != digits) && ret_val != "0") ret_val.push_back('-');
         return bigint(std::string(ret_val.rbegin(), ret_val.rend()));
     }
     auto left = *this, right = other;
     left.negative = false;
     right.negative = false;
-    auto result = left + right;
-    if (negative) result.negative = true;
-    return result;
+    if (negative && other.negative) {
+        return right - left;
+    } else if (negative) {
+        auto result = left + right;
+        result.negative = true;
+        return result;
+    } else return *this + right;
 }
 
 bigint bigint::operator*(const bigint &other) const {
@@ -151,20 +182,50 @@ bigint bigint::operator*(const bigint &other) const {
     return result;
 }
 
-bool bigint::operator<(const bigint &other) const {
+bigint bigint::operator/(const bigint &other) const {
+    if (other.digits[other.digits.size() - 1] == '0') throw std::domain_error("Division by zero");
+    if (digits[digits.size() - 1] == '0') return bigint("0");
+    auto limit = bigint("0");
+    auto result = bigint("0");
+    auto left = *this;
+    auto right = other;
+    left.negative = false;
+    right.negative = false;
     if (negative == other.negative) {
-        if (negative)
-            return !(*this == other) && (digits.size() > other.digits.size() ||
-                                         digits.size() == other.digits.size() &&
-                                         digits[digits.size() - 1] >
-                                         other.digits[other.digits.size() - 1]);
-        else
-            return !(*this == other) && (digits.size() < other.digits.size() ||
-                                         digits.size() == other.digits.size() &&
-                                         digits[digits.size() - 1] <
-                                         other.digits[other.digits.size() - 1]);
-    } else if (negative) return true;
-    return false;
+        while (limit <= left && (limit+right) <= left) {
+            limit += right;
+            ++result;
+        }
+    } else {
+        while (limit <= left) {
+            limit += right;
+            ++result;
+        }
+        result.negative = true;
+    }
+    return result;
+
+
+}
+
+bool bigint::operator<(const bigint &other) const {
+    if (!(negative || other.negative)) {
+        if (*this == other) return false;
+        if (digits.size() < other.digits.size()) return true;
+        for (auto i = digits.size() - 1; i >= 0; --i) {
+            if (digits[i] > other.digits[i]) return false;
+            if (digits[i] < other.digits[i]) return true;
+        }
+    }
+    if (negative == other.negative) {
+        if (*this == other) return false;
+        if (digits.size() < other.digits.size()) return false;
+        for (auto i = digits.size() - 1; i >= 0; --i) {
+            if (digits[i] > other.digits[i]) return true;
+            if (digits[i] < other.digits[i]) return false;
+        }
+    }
+    return negative;
 }
 
 bool bigint::operator==(const bigint &other) const {
@@ -186,5 +247,3 @@ bool bigint::operator<=(const bigint &other) const {
 bool bigint::operator>=(const bigint &other) const {
     return *this > other || *this == other;
 }
-
-

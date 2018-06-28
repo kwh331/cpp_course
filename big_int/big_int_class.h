@@ -7,7 +7,6 @@
 
 
 #include <vector>
-#include <iostream>
 #include <string>
 #include <algorithm>
 
@@ -31,9 +30,13 @@ public:
 
     bigint operator+=(const bigint &);
 
+    bigint operator++();
+
     bigint operator-(const bigint &) const;
 
     bigint operator*(const bigint &) const;
+
+    bigint operator/(const bigint &) const;
 
     bool operator<(const bigint &) const;
 
