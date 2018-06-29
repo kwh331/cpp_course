@@ -1,0 +1,10 @@
+//
+// Created by kwh331 on 6/28/2018.
+//
+
+#ifndef HIGHER_ORDER_FUNCTIONS_TEST_HIGHER_ORDER_FUNCTIONS_H
+#define HIGHER_ORDER_FUNCTIONS_TEST_HIGHER_ORDER_FUNCTIONS_H
+
+void test_custom_version_of_higher_order_functions();
+
+#endif //HIGHER_ORDER_FUNCTIONS_TEST_HIGHER_ORDER_FUNCTIONS_H

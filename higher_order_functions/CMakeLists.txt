@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.10)
+project(higher_order_functions)
+
+set(CMAKE_CXX_STANDARD 14)
+
+add_executable(higher_order_functions main.cpp custom_ver_higher_order_functions.cpp custom_ver_higher_order_functions.h test_higher_order_functions.cpp test_higher_order_functions.h)
