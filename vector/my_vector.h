@@ -323,6 +323,6 @@ public:
 
 };
 
-void test_My_Vector_class();
+
 
 #endif //VECTOR_MY_VECTOR_H

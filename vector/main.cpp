@@ -1,14 +1,6 @@
-//#include "my_vector.h"
-
-int function()
-
+#include "test_custom_vector_class.h"
 
 int main() {
-    char x = 'V';
-    int y = 3;
-    float z = 3.4545;
-    bool q = true;
-    double u = 3.4535345345345345345345345;
-
+    test_My_Vector_class();
     return 0;
 }
