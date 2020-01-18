@@ -3,7 +3,6 @@
 //
 
 #include "minimax.h"
-#include <iostream>
 
 bool winner(char mark, const std::vector<char> &board) {
     return (board[0] == mark && board[1] == mark && board[2] == mark) ||
@@ -16,46 +15,39 @@ bool winner(char mark, const std::vector<char> &board) {
            (board[2] == mark && board[4] == mark && board[6] == mark);
 }
 
-struct Move {
-    int score, index;
-};
 
 std::vector<Move> free_moves(const std::vector<char> &board) {
     std::vector<Move> moves;
     for (auto i = 0; i < 9; ++i) {
         if (board[i] == ' ') {
-            auto move = Move();
-            move.index = i;
-            move.score = 0;
-            moves.push_back(move);
+            moves.emplace_back(0, i);
         }
     }
     return moves;
 }
 
-
 bool draw(const std::vector<char> &board) {
     return !winner('x', board) && !winner('0', board) && free_moves(board).empty();
 }
 
-int best_move(const std::vector<Move> &list, bool max) {
+Move best_move(const std::vector<Move> &list, bool max) {
     auto best_move_index = list[0];
-    for (const auto &v: list) {
-        if ((max && best_move_index.score < v.score) || (!max && best_move_index.score > v.score))
+    for (auto v: list) {
+        if ((max && best_move_index.first < v.first) || (!max && best_move_index.first > v.first))
             best_move_index = v;
     }
-    return best_move_index.index;
+    return best_move_index;
 }
 
-
-int minimax(char &maximizer, char &minimizer, std::vector<char> board, bool turn) {
-    if (winner(maximizer, board)) return 1;
-    if (winner(minimizer, board)) return -1;
-    if (draw(board)) return 0;
+Move minimax(char &maximizer, char &minimizer, std::vector<char> board, bool turn) {
+    if (winner(maximizer, board)) return {1, -1};
+    if (winner(minimizer, board)) return {-1, -1};
+    if (draw(board)) return {0, -1};
     auto moves = free_moves(board);
     for (auto &i: moves) {
-        board[i.index] = turn ? maximizer : minimizer;
-        i.score += minimax(maximizer, minimizer, board, !turn);
+        auto new_board(board);
+        new_board[i.second] = turn ? maximizer : minimizer;
+        i.first = minimax(maximizer, minimizer, new_board, !turn).first;
     }
     return best_move(moves, turn);
 }

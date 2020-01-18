@@ -71,7 +71,7 @@ void Player::make_move() {
     } else {
         // Advanced AI, use mini_max algorithm
         char opponent = '0' == mark ? 'x' : '0';
-        move = minimax(mark, opponent, game_board->board_handle());
+        move = minimax(mark, opponent, game_board->board_handle()).second;
     }
     game_board->change_board(move, mark);
 }

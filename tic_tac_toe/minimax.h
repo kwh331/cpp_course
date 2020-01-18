@@ -6,7 +6,10 @@
 #define TIC_TAC_TOE_MINIMAX_H
 
 #include <vector>
+#include <utility>
 
-int minimax(char &, char &, std::vector<char>, bool = true);
+using Move = std::pair<int, int>;
+
+Move minimax(char &, char &, std::vector<char>, bool = true);
 
 #endif //TIC_TAC_TOE_MINIMAX_H
